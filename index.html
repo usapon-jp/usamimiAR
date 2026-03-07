@@ -23,9 +23,11 @@ video, canvas {
   position: absolute;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  gap: 16px;
   box-sizing: border-box;
   background: rgba(0, 0, 0, 0.58);
   color: #fff;
@@ -39,25 +41,40 @@ video, canvas {
 #status.hidden {
   display: none;
 }
+
+#startButton {
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 24px;
+  background: #fff;
+  color: #111;
+  font-size: 16px;
+  font-weight: 700;
+}
 </style>
 </head>
 <body>
 
 <video id="video" autoplay playsinline></video>
 <canvas id="canvas"></canvas>
-<div id="status">カメラを許可すると、うさみみARが始まります</div>
+<div id="status">
+  <div id="statusText">開始ボタンを押して、カメラを許可してください</div>
+  <button id="startButton" type="button">カメラを開始</button>
+</div>
 
 <script>
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const status = document.getElementById("status");
+const statusText = document.getElementById("statusText");
+const startButton = document.getElementById("startButton");
 
 const ear = new Image();
 ear.src = "usamimi.png";
 
 function showStatus(message) {
-  status.textContent = message;
+  statusText.textContent = message;
   status.classList.remove("hidden");
 }
 
@@ -126,11 +143,22 @@ const camera = new Camera(video, {
 });
 
 video.addEventListener("loadeddata", hideStatus, { once: true });
+startButton.addEventListener("click", async () => {
+  startButton.disabled = true;
+  showStatus("カメラを起動しています。許可ダイアログが出たら OK を押してください");
 
-showStatus("カメラを起動しています。許可ダイアログが出たら OK を押してください");
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+      audio: false
+    });
 
-camera.start().catch(() => {
-  showStatus("カメラを開始できませんでした。ブラウザのカメラ許可を ON にして再読み込みしてください");
+    stream.getTracks().forEach((track) => track.stop());
+    await camera.start();
+  } catch (error) {
+    startButton.disabled = false;
+    showStatus("カメラを開始できませんでした。ChromeかSafariで開いて、サイトのカメラ許可を ON にしてから再試行してください");
+  }
 });
 </script>
 
