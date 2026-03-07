@@ -127,10 +127,10 @@ faceMesh.onResults((results) => {
     const headHeight = Math.max(chinY - foreheadY, headWidth * 0.9);
     const angle = Math.atan2(dy, dx);
 
-    const earWidth = headWidth * 1.35;
+    const earWidth = headWidth * 1.05;
     const earHeight = earWidth * (ear.naturalHeight / ear.naturalWidth || 0.6);
     const centerX = foreheadX;
-    const centerY = foreheadY - headHeight * 0.52;
+    const centerY = foreheadY - headHeight * 0.34;
 
     ctx.save();
     ctx.translate(centerX, centerY);
