@@ -86,6 +86,39 @@ video, canvas {
   width: 28px;
   height: 28px;
 }
+
+#captureButton {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  border: 0;
+  border-radius: 999px;
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #111;
+  z-index: 1001;
+  display: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+#captureButton.visible {
+  display: block;
+}
+
+#captureButton::before {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 44px;
+  margin: 10px;
+  border: 3px solid currentColor;
+  border-radius: 999px;
+  box-sizing: border-box;
+}
 </style>
 </head>
 <body>
@@ -106,6 +139,7 @@ video, canvas {
     <path d="M10 4h4l1.2 1.5H18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8L10 4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
   </svg>
 </button>
+<button id="captureButton" type="button" aria-label="しゃしんをとる" title="しゃしんをとる"></button>
 
 <script>
 const video = document.getElementById("video");
@@ -115,6 +149,7 @@ const status = document.getElementById("status");
 const statusText = document.getElementById("statusText");
 const startButton = document.getElementById("startButton");
 const switchButton = document.getElementById("switchButton");
+const captureButton = document.getElementById("captureButton");
 const earCanvas = document.createElement("canvas");
 const earCtx = earCanvas.getContext("2d");
 let processedEar = null;
@@ -164,6 +199,15 @@ function updateCameraModeUi() {
   const label = mirrored ? "うしろカメラに切り替える" : "まえカメラに切り替える";
   switchButton.setAttribute("aria-label", label);
   switchButton.setAttribute("title", label);
+}
+
+function showTemporaryStatus(message) {
+  showStatus(message);
+  setTimeout(() => {
+    if (currentStream) {
+      hideStatus();
+    }
+  }, 1800);
 }
 
 const faceMesh = new FaceMesh({
@@ -236,6 +280,7 @@ async function renderLoop() {
 async function startCamera(mode = currentFacingMode) {
   startButton.disabled = true;
   switchButton.disabled = true;
+  captureButton.disabled = true;
   currentFacingMode = mode;
   updateCameraModeUi();
   showStatus("今、カメラのじゅんび中だよ。出てきたまどで「きょか」してね");
@@ -260,13 +305,30 @@ async function startCamera(mode = currentFacingMode) {
     await video.play();
     hideStatus();
     switchButton.classList.add("visible");
+    captureButton.classList.add("visible");
     switchButton.disabled = false;
+    captureButton.disabled = false;
     animationFrameId = requestAnimationFrame(renderLoop);
   } catch (error) {
     startButton.disabled = false;
     switchButton.disabled = false;
+    captureButton.disabled = false;
     showStatus("カメラをつけられなかったよ。Chrome か Safari で開いて、カメラをつかえるようにしてから、もう一度押してね");
   }
+}
+
+function savePhoto() {
+  if (!canvas.width || !canvas.height) {
+    return;
+  }
+
+  const imageUrl = canvas.toDataURL("image/png");
+  const link = document.createElement("a");
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  link.href = imageUrl;
+  link.download = `usamimi-ar-${timestamp}.png`;
+  link.click();
+  showTemporaryStatus("しゃしんを ほぞんするよ。できないときは 画像を長押しして ほぞんしてね");
 }
 
 startButton.addEventListener("click", startCamera);
@@ -284,6 +346,12 @@ switchButton.addEventListener("touchend", async (event) => {
   event.preventDefault();
   const nextMode = currentFacingMode === "user" ? "environment" : "user";
   await startCamera(nextMode);
+}, { passive: false });
+
+captureButton.addEventListener("click", savePhoto);
+captureButton.addEventListener("touchend", (event) => {
+  event.preventDefault();
+  savePhoto();
 }, { passive: false });
 </script>
 
