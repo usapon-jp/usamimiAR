@@ -17,6 +17,9 @@ video, canvas {
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+.mirror {
   transform: scaleX(-1);
 }
 #status {
@@ -57,6 +60,27 @@ video, canvas {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
+
+#switchButton {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #111;
+  font-size: 15px;
+  font-weight: 700;
+  z-index: 1001;
+  display: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#switchButton.visible {
+  display: block;
+}
 </style>
 </head>
 <body>
@@ -67,6 +91,7 @@ video, canvas {
   <div id="statusText">下のボタンを押して、カメラをつかえるようにしてね</div>
   <button id="startButton" type="button">カメラをつける</button>
 </div>
+<button id="switchButton" type="button">アウトカメ</button>
 
 <script>
 const video = document.getElementById("video");
@@ -75,9 +100,14 @@ const ctx = canvas.getContext("2d");
 const status = document.getElementById("status");
 const statusText = document.getElementById("statusText");
 const startButton = document.getElementById("startButton");
+const switchButton = document.getElementById("switchButton");
 const earCanvas = document.createElement("canvas");
 const earCtx = earCanvas.getContext("2d");
 let processedEar = null;
+let currentFacingMode = "user";
+let currentStream = null;
+let animationFrameId = null;
+let isSending = false;
 
 const ear = new Image();
 ear.src = "usamimi.png";
@@ -111,6 +141,13 @@ function showStatus(message) {
 
 function hideStatus() {
   status.classList.add("hidden");
+}
+
+function updateCameraModeUi() {
+  const mirrored = currentFacingMode === "user";
+  video.classList.toggle("mirror", mirrored);
+  canvas.classList.toggle("mirror", mirrored);
+  switchButton.textContent = mirrored ? "アウトカメ" : "インカメ";
 }
 
 const faceMesh = new FaceMesh({
@@ -167,29 +204,51 @@ faceMesh.onResults((results) => {
   }
 });
 
-const camera = new Camera(video, {
-  onFrame: async () => {
-    await faceMesh.send({ image: video });
-  },
-  width: 640,
-  height: 480
-});
+async function renderLoop() {
+  if (video.readyState >= 2 && !isSending) {
+    isSending = true;
+    try {
+      await faceMesh.send({ image: video });
+    } finally {
+      isSending = false;
+    }
+  }
 
-video.addEventListener("loadeddata", hideStatus, { once: true });
-async function startCamera() {
+  animationFrameId = requestAnimationFrame(renderLoop);
+}
+
+async function startCamera(mode = currentFacingMode) {
   startButton.disabled = true;
+  switchButton.disabled = true;
+  currentFacingMode = mode;
+  updateCameraModeUi();
   showStatus("今、カメラのじゅんび中だよ。出てきたまどで「きょか」してね");
 
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+
+    if (currentStream) {
+      currentStream.getTracks().forEach((track) => track.stop());
+      currentStream = null;
+    }
+
+    currentStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: mode }, width: { ideal: 640 }, height: { ideal: 480 } },
       audio: false
     });
 
-    stream.getTracks().forEach((track) => track.stop());
-    await camera.start();
+    video.srcObject = currentStream;
+    await video.play();
+    hideStatus();
+    switchButton.classList.add("visible");
+    switchButton.disabled = false;
+    animationFrameId = requestAnimationFrame(renderLoop);
   } catch (error) {
     startButton.disabled = false;
+    switchButton.disabled = false;
     showStatus("カメラをつけられなかったよ。Chrome か Safari で開いて、カメラをつかえるようにしてから、もう一度押してね");
   }
 }
@@ -198,6 +257,17 @@ startButton.addEventListener("click", startCamera);
 startButton.addEventListener("touchend", (event) => {
   event.preventDefault();
   startCamera();
+}, { passive: false });
+
+switchButton.addEventListener("click", async () => {
+  const nextMode = currentFacingMode === "user" ? "environment" : "user";
+  await startCamera(nextMode);
+});
+
+switchButton.addEventListener("touchend", async (event) => {
+  event.preventDefault();
+  const nextMode = currentFacingMode === "user" ? "environment" : "user";
+  await startCamera(nextMode);
 }, { passive: false });
 </script>
 
