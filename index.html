@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>うさみみAR</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+<style>
+body { margin: 0; overflow: hidden; background: #000; }
+video, canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(-1);
+}
+#status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.58);
+  color: #fff;
+  font-family: sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: center;
+  z-index: 10;
+}
+
+#status.hidden {
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas"></canvas>
+<div id="status">カメラを許可すると、うさみみARが始まります</div>
+
+<script>
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const status = document.getElementById("status");
+
+const ear = new Image();
+ear.src = "usamimi.png";
+
+function showStatus(message) {
+  status.textContent = message;
+  status.classList.remove("hidden");
+}
+
+function hideStatus() {
+  status.classList.add("hidden");
+}
+
+const faceMesh = new FaceMesh({
+  locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+});
+
+faceMesh.setOptions({
+  maxNumFaces: 1,
+  refineLandmarks: true,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+});
+
+faceMesh.onResults((results) => {
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
+  if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+    const face = results.multiFaceLandmarks[0];
+    const leftTemple = face[234];
+    const rightTemple = face[454];
+    const forehead = face[10];
+    const chin = face[152];
+
+    const leftX = leftTemple.x * canvas.width;
+    const leftY = leftTemple.y * canvas.height;
+    const rightX = rightTemple.x * canvas.width;
+    const rightY = rightTemple.y * canvas.height;
+    const foreheadX = forehead.x * canvas.width;
+    const foreheadY = forehead.y * canvas.height;
+    const chinY = chin.y * canvas.height;
+
+    const dx = rightX - leftX;
+    const dy = rightY - leftY;
+    const headWidth = Math.hypot(dx, dy);
+    const headHeight = Math.max(chinY - foreheadY, headWidth * 0.9);
+    const angle = Math.atan2(dy, dx);
+
+    const earWidth = headWidth * 1.35;
+    const earHeight = earWidth * (ear.naturalHeight / ear.naturalWidth || 0.6);
+    const centerX = foreheadX;
+    const centerY = foreheadY - headHeight * 0.52;
+
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(angle);
+    ctx.drawImage(ear, -earWidth / 2, -earHeight / 2, earWidth, earHeight);
+    ctx.restore();
+  }
+});
+
+const camera = new Camera(video, {
+  onFrame: async () => {
+    await faceMesh.send({ image: video });
+  },
+  width: 640,
+  height: 480
+});
+
+video.addEventListener("loadeddata", hideStatus, { once: true });
+
+showStatus("カメラを起動しています。許可ダイアログが出たら OK を押してください");
+
+camera.start().catch(() => {
+  showStatus("カメラを開始できませんでした。ブラウザのカメラ許可を ON にして再読み込みしてください");
+});
+</script>
+
+</body>
+</html>
