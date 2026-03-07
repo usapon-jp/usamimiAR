@@ -75,9 +75,34 @@ const ctx = canvas.getContext("2d");
 const status = document.getElementById("status");
 const statusText = document.getElementById("statusText");
 const startButton = document.getElementById("startButton");
+const earCanvas = document.createElement("canvas");
+const earCtx = earCanvas.getContext("2d");
+let processedEar = null;
 
 const ear = new Image();
 ear.src = "usamimi.png";
+ear.onload = () => {
+  earCanvas.width = ear.naturalWidth;
+  earCanvas.height = ear.naturalHeight;
+  earCtx.clearRect(0, 0, earCanvas.width, earCanvas.height);
+  earCtx.drawImage(ear, 0, 0);
+
+  const imageData = earCtx.getImageData(0, 0, earCanvas.width, earCanvas.height);
+  const { data } = imageData;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+
+    if (r < 20 && g < 20 && b < 20) {
+      data[i + 3] = 0;
+    }
+  }
+
+  earCtx.putImageData(imageData, 0, 0);
+  processedEar = earCanvas;
+};
 
 function showStatus(message) {
   statusText.textContent = message;
@@ -127,16 +152,18 @@ faceMesh.onResults((results) => {
     const headHeight = Math.max(chinY - foreheadY, headWidth * 0.9);
     const angle = Math.atan2(dy, dx);
 
-    const earWidth = headWidth * 1.05;
-    const earHeight = earWidth * (ear.naturalHeight / ear.naturalWidth || 0.6);
+    const earWidth = headWidth * 0.95;
+    const earHeight = earWidth * ((ear.naturalHeight / ear.naturalWidth) || 0.68);
     const centerX = foreheadX;
-    const centerY = foreheadY - headHeight * 0.34;
+    const centerY = foreheadY - headHeight * 0.28;
 
-    ctx.save();
-    ctx.translate(centerX, centerY);
-    ctx.rotate(angle);
-    ctx.drawImage(ear, -earWidth / 2, -earHeight / 2, earWidth, earHeight);
-    ctx.restore();
+    if (processedEar) {
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(angle);
+      ctx.drawImage(processedEar, -earWidth / 2, -earHeight / 2, earWidth, earHeight);
+      ctx.restore();
+    }
   }
 });
 
