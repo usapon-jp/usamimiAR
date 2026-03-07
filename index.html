@@ -58,8 +58,8 @@ video, canvas {
 <video id="video" autoplay playsinline></video>
 <canvas id="canvas"></canvas>
 <div id="status">
-  <div id="statusText">開始ボタンを押して、カメラを許可してください</div>
-  <button id="startButton" type="button">カメラを開始</button>
+  <div id="statusText">したの ぼたんを おして かめらを つかえるように してね</div>
+  <button id="startButton" type="button">かめらを つける</button>
 </div>
 
 <script>
@@ -145,7 +145,7 @@ const camera = new Camera(video, {
 video.addEventListener("loadeddata", hideStatus, { once: true });
 startButton.addEventListener("click", async () => {
   startButton.disabled = true;
-  showStatus("カメラを起動しています。許可ダイアログが出たら OK を押してください");
+  showStatus("いま かめらを じゅんびしているよ。でてきた まどで きょか してね");
 
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -157,7 +157,7 @@ startButton.addEventListener("click", async () => {
     await camera.start();
   } catch (error) {
     startButton.disabled = false;
-    showStatus("カメラを開始できませんでした。ChromeかSafariで開いて、サイトのカメラ許可を ON にしてから再試行してください");
+    showStatus("かめらを つけられなかったよ。Chrome か Safari で ひらいて かめらを つかえるように してから もういちど おしてね");
   }
 });
 </script>
