@@ -35,7 +35,8 @@ video, canvas {
   font-size: 16px;
   line-height: 1.6;
   text-align: center;
-  z-index: 10;
+  z-index: 1000;
+  pointer-events: auto;
 }
 
 #status.hidden {
@@ -43,6 +44,7 @@ video, canvas {
 }
 
 #startButton {
+  position: relative;
   border: 0;
   border-radius: 999px;
   padding: 14px 24px;
@@ -50,6 +52,10 @@ video, canvas {
   color: #111;
   font-size: 16px;
   font-weight: 700;
+  z-index: 1001;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 </style>
 </head>
@@ -143,7 +149,7 @@ const camera = new Camera(video, {
 });
 
 video.addEventListener("loadeddata", hideStatus, { once: true });
-startButton.addEventListener("click", async () => {
+async function startCamera() {
   startButton.disabled = true;
   showStatus("今、カメラのじゅんび中だよ。出てきたまどで「きょか」してね");
 
@@ -159,7 +165,13 @@ startButton.addEventListener("click", async () => {
     startButton.disabled = false;
     showStatus("カメラをつけられなかったよ。Chrome か Safari で開いて、カメラをつかえるようにしてから、もう一度押してね");
   }
-});
+}
+
+startButton.addEventListener("click", startCamera);
+startButton.addEventListener("touchend", (event) => {
+  event.preventDefault();
+  startCamera();
+}, { passive: false });
 </script>
 
 </body>
