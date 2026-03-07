@@ -61,6 +61,12 @@ video, canvas {
   -webkit-tap-highlight-color: transparent;
 }
 
+#helpText {
+  font-size: 14px;
+  line-height: 1.7;
+  opacity: 0.95;
+}
+
 #switchButton {
   position: absolute;
   right: 16px;
@@ -150,6 +156,7 @@ video, canvas {
 <canvas id="canvas"></canvas>
 <div id="status">
   <div id="statusText">下のボタンを押して、カメラをつかえるようにしてね</div>
+  <div id="helpText">右下のボタンでカメラを切り替えできます。撮った写真はダウンロードファイルに保存されます。</div>
   <button id="startButton" type="button">カメラをつける</button>
 </div>
 <button id="switchButton" type="button" aria-label="カメラを切り替える" title="カメラを切り替える">
