@@ -182,39 +182,66 @@ const startButton = document.getElementById("startButton");
 const switchButton = document.getElementById("switchButton");
 const captureButton = document.getElementById("captureButton");
 const toast = document.getElementById("toast");
-const earCanvas = document.createElement("canvas");
-const earCtx = earCanvas.getContext("2d");
-let processedEar = null;
+const earAssets = [
+  { src: "usamimi.png" },
+  { src: "usamimi_2.png" },
+  { src: "usamimi_3.png" },
+  { src: "usamimi_4.png" }
+];
+const processedEars = [];
+let currentEarIndex = 0;
 let currentFacingMode = "user";
 let currentStream = null;
 let animationFrameId = null;
 let isSending = false;
 let toastTimeoutId = null;
+let lastFaceBounds = null;
 
-const ear = new Image();
-ear.src = "usamimi.png";
-ear.onload = () => {
-  earCanvas.width = ear.naturalWidth;
-  earCanvas.height = ear.naturalHeight;
-  earCtx.clearRect(0, 0, earCanvas.width, earCanvas.height);
-  earCtx.drawImage(ear, 0, 0);
+async function loadEarAsset(asset) {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => {
+      const offscreenCanvas = document.createElement("canvas");
+      const offscreenCtx = offscreenCanvas.getContext("2d");
+      offscreenCanvas.width = image.naturalWidth;
+      offscreenCanvas.height = image.naturalHeight;
+      offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+      offscreenCtx.drawImage(image, 0, 0);
 
-  const imageData = earCtx.getImageData(0, 0, earCanvas.width, earCanvas.height);
-  const { data } = imageData;
+      const imageData = offscreenCtx.getImageData(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+      const { data } = imageData;
 
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
 
-    if (r < 20 && g < 20 && b < 20) {
-      data[i + 3] = 0;
+        if (r < 20 && g < 20 && b < 20) {
+          data[i + 3] = 0;
+        }
+      }
+
+      offscreenCtx.putImageData(imageData, 0, 0);
+      resolve({
+        canvas: offscreenCanvas,
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+        src: asset.src
+      });
+    };
+    image.onerror = () => resolve(null);
+    image.src = asset.src;
+  });
+}
+
+async function loadEarAssets() {
+  for (const asset of earAssets) {
+    const processedAsset = await loadEarAsset(asset);
+    if (processedAsset) {
+      processedEars.push(processedAsset);
     }
   }
-
-  earCtx.putImageData(imageData, 0, 0);
-  processedEar = earCanvas;
-};
+}
 
 function showStatus(message) {
   statusText.textContent = message;
@@ -265,6 +292,7 @@ faceMesh.onResults((results) => {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+  lastFaceBounds = null;
 
   if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
     const face = results.multiFaceLandmarks[0];
@@ -286,17 +314,24 @@ faceMesh.onResults((results) => {
     const headWidth = Math.hypot(dx, dy);
     const headHeight = Math.max(chinY - foreheadY, headWidth * 0.9);
     const angle = Math.atan2(dy, dx);
+    lastFaceBounds = {
+      left: Math.min(leftX, rightX) - headWidth * 0.28,
+      right: Math.max(leftX, rightX) + headWidth * 0.28,
+      top: foreheadY - headHeight * 0.9,
+      bottom: chinY + headHeight * 0.1
+    };
 
     const earWidth = headWidth * 2.35;
-    const earHeight = earWidth * ((ear.naturalHeight / ear.naturalWidth) || 0.68);
+    const currentEar = processedEars[currentEarIndex];
+    const earHeight = earWidth * ((currentEar?.height / currentEar?.width) || 0.68);
     const centerX = foreheadX;
     const centerY = foreheadY - headHeight * 0.48;
 
-    if (processedEar) {
+    if (currentEar) {
       ctx.save();
       ctx.translate(centerX, centerY);
       ctx.rotate(angle);
-      ctx.drawImage(processedEar, -earWidth / 2, -earHeight / 2, earWidth, earHeight);
+      ctx.drawImage(currentEar.canvas, -earWidth / 2, -earHeight / 2, earWidth, earHeight);
       ctx.restore();
     }
   }
@@ -369,6 +404,55 @@ function savePhoto() {
   showToast("しゃしんを ほぞんしたよ");
 }
 
+function getCanvasPoint(event) {
+  const rect = canvas.getBoundingClientRect();
+  const source = event.changedTouches ? event.changedTouches[0] : event;
+  const displayX = source.clientX - rect.left;
+  const displayY = source.clientY - rect.top;
+  const x = displayX * (canvas.width / rect.width);
+  const y = displayY * (canvas.height / rect.height);
+  const mirrored = currentFacingMode === "user";
+
+  return {
+    x: mirrored ? canvas.width - x : x,
+    y
+  };
+}
+
+function chooseRandomEarIndex() {
+  if (processedEars.length <= 1) {
+    return currentEarIndex;
+  }
+
+  let nextIndex = currentEarIndex;
+  while (nextIndex === currentEarIndex) {
+    nextIndex = Math.floor(Math.random() * processedEars.length);
+  }
+  return nextIndex;
+}
+
+function handleFaceTap(event) {
+  if (!lastFaceBounds || processedEars.length <= 1) {
+    return;
+  }
+
+  const point = getCanvasPoint(event);
+  const inFace =
+    point.x >= lastFaceBounds.left &&
+    point.x <= lastFaceBounds.right &&
+    point.y >= lastFaceBounds.top &&
+    point.y <= lastFaceBounds.bottom;
+
+  if (!inFace) {
+    return;
+  }
+
+  currentEarIndex = chooseRandomEarIndex();
+  showToast("みみが かわったよ");
+}
+
+loadEarAssets();
+
 startButton.addEventListener("click", startCamera);
 startButton.addEventListener("touchend", (event) => {
   event.preventDefault();
@@ -390,6 +474,12 @@ captureButton.addEventListener("click", savePhoto);
 captureButton.addEventListener("touchend", (event) => {
   event.preventDefault();
   savePhoto();
+}, { passive: false });
+
+canvas.addEventListener("click", handleFaceTap);
+canvas.addEventListener("touchend", (event) => {
+  event.preventDefault();
+  handleFaceTap(event);
 }, { passive: false });
 </script>
 
