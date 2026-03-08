@@ -447,35 +447,21 @@ function isControlTarget(target) {
 
 loadEarAssets();
 
-startButton.addEventListener("click", startCamera);
-startButton.addEventListener("touchend", (event) => {
+startButton.addEventListener("pointerup", (event) => {
   event.preventDefault();
   startCamera();
-}, { passive: false });
+});
 
-switchButton.addEventListener("click", async () => {
+switchButton.addEventListener("pointerup", async (event) => {
+  event.preventDefault();
   const nextMode = currentFacingMode === "user" ? "environment" : "user";
   await startCamera(nextMode);
 });
 
-switchButton.addEventListener("touchend", async (event) => {
-  event.preventDefault();
-  const nextMode = currentFacingMode === "user" ? "environment" : "user";
-  await startCamera(nextMode);
-}, { passive: false });
-
-captureButton.addEventListener("click", savePhoto);
-captureButton.addEventListener("touchend", (event) => {
+captureButton.addEventListener("pointerup", (event) => {
   event.preventDefault();
   savePhoto();
-}, { passive: false });
-
-canvas.addEventListener("click", handleFaceTap);
-canvas.addEventListener("pointerup", handleFaceTap);
-canvas.addEventListener("touchend", (event) => {
-  event.preventDefault();
-  handleFaceTap(event);
-}, { passive: false });
+});
 
 document.addEventListener("pointerup", (event) => {
   if (isControlTarget(event.target)) {
