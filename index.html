@@ -442,33 +442,46 @@ function handleFaceTap(event) {
 }
 
 function isControlTarget(target) {
-  return Boolean(target.closest("#startButton, #switchButton, #captureButton, #status"));
+  return target instanceof Element && Boolean(target.closest("#startButton, #switchButton, #captureButton, #status"));
+}
+
+function stopEvent(event) {
+  event.preventDefault();
+  event.stopPropagation();
 }
 
 loadEarAssets();
 
 startButton.addEventListener("pointerup", (event) => {
-  event.preventDefault();
+  stopEvent(event);
   startCamera();
 });
 
 switchButton.addEventListener("pointerup", async (event) => {
-  event.preventDefault();
+  stopEvent(event);
   const nextMode = currentFacingMode === "user" ? "environment" : "user";
   await startCamera(nextMode);
 });
 
 captureButton.addEventListener("pointerup", (event) => {
-  event.preventDefault();
+  stopEvent(event);
   savePhoto();
 });
 
-document.addEventListener("pointerup", (event) => {
+document.addEventListener("click", (event) => {
   if (isControlTarget(event.target)) {
     return;
   }
   handleFaceTap(event);
 });
+
+document.addEventListener("touchend", (event) => {
+  if (isControlTarget(event.target)) {
+    return;
+  }
+  stopEvent(event);
+  handleFaceTap(event);
+}, { passive: false });
 </script>
 
 </body>
