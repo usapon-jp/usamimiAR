@@ -314,11 +314,20 @@ faceMesh.onResults((results) => {
     const headWidth = Math.hypot(dx, dy);
     const headHeight = Math.max(chinY - foreheadY, headWidth * 0.9);
     const angle = Math.atan2(dy, dx);
+    const allX = face.map((point) => point.x);
+    const allY = face.map((point) => point.y);
+    const minX = Math.min(...allX);
+    const maxX = Math.max(...allX);
+    const minY = Math.min(...allY);
+    const maxY = Math.max(...allY);
+    const widthPad = (maxX - minX) * 0.45;
+    const topPad = (maxY - minY) * 1.1;
+    const bottomPad = (maxY - minY) * 0.2;
     lastFaceBounds = {
-      left: Math.min(leftX, rightX) - headWidth * 0.55,
-      right: Math.max(leftX, rightX) + headWidth * 0.55,
-      top: foreheadY - headHeight * 1.4,
-      bottom: chinY + headHeight * 0.18
+      left: Math.max(0, minX - widthPad),
+      right: Math.min(1, maxX + widthPad),
+      top: Math.max(0, minY - topPad),
+      bottom: Math.min(1, maxY + bottomPad)
     };
 
     const earWidth = headWidth * 2.35;
@@ -407,15 +416,13 @@ function savePhoto() {
 function getCanvasPoint(event) {
   const rect = canvas.getBoundingClientRect();
   const source = event.changedTouches ? event.changedTouches[0] : event;
-  const displayX = source.clientX - rect.left;
-  const displayY = source.clientY - rect.top;
-  const x = displayX * (canvas.width / rect.width);
-  const y = displayY * (canvas.height / rect.height);
+  const relX = (source.clientX - rect.left) / rect.width;
+  const relY = (source.clientY - rect.top) / rect.height;
   const mirrored = currentFacingMode === "user";
 
   return {
-    x: mirrored ? canvas.width - x : x,
-    y
+    x: mirrored ? 1 - relX : relX,
+    y: relY
   };
 }
 
@@ -451,6 +458,10 @@ function handleFaceTap(event) {
   showToast("みみが かわったよ");
 }
 
+function isControlTarget(target) {
+  return target === startButton || target === switchButton || target === captureButton;
+}
+
 loadEarAssets();
 
 startButton.addEventListener("click", startCamera);
@@ -482,6 +493,13 @@ canvas.addEventListener("touchend", (event) => {
   event.preventDefault();
   handleFaceTap(event);
 }, { passive: false });
+
+document.addEventListener("pointerup", (event) => {
+  if (isControlTarget(event.target)) {
+    return;
+  }
+  handleFaceTap(event);
+});
 </script>
 
 </body>
