@@ -315,10 +315,10 @@ faceMesh.onResults((results) => {
     const headHeight = Math.max(chinY - foreheadY, headWidth * 0.9);
     const angle = Math.atan2(dy, dx);
     lastFaceBounds = {
-      left: Math.min(leftX, rightX) - headWidth * 0.28,
-      right: Math.max(leftX, rightX) + headWidth * 0.28,
-      top: foreheadY - headHeight * 0.9,
-      bottom: chinY + headHeight * 0.1
+      left: Math.min(leftX, rightX) - headWidth * 0.55,
+      right: Math.max(leftX, rightX) + headWidth * 0.55,
+      top: foreheadY - headHeight * 1.4,
+      bottom: chinY + headHeight * 0.18
     };
 
     const earWidth = headWidth * 2.35;
@@ -477,6 +477,7 @@ captureButton.addEventListener("touchend", (event) => {
 }, { passive: false });
 
 canvas.addEventListener("click", handleFaceTap);
+canvas.addEventListener("pointerup", handleFaceTap);
 canvas.addEventListener("touchend", (event) => {
   event.preventDefault();
   handleFaceTap(event);
