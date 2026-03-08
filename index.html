@@ -184,7 +184,7 @@ const captureButton = document.getElementById("captureButton");
 const toast = document.getElementById("toast");
 const earAssets = [
   { src: "usamimi.png", scale: 1, offsetX: 0, offsetY: 0, angleScale: 1 },
-  { src: "usamimi_2.png", scale: 1.24, offsetX: -0.08, offsetY: -0.16, angleScale: 0.2 },
+  { src: "usamimi_2.png", scale: 1.24, offsetX: -0.02, offsetY: -0.16, angleScale: 0.2, angleOffset: 0.12 },
   { src: "usamimi_3.png", scale: 0.9, offsetX: 0, offsetY: -0.22, angleScale: 1 },
   { src: "usamimi_4.png", scale: 1.12, offsetX: 0, offsetY: -0.12, angleScale: 1 }
 ];
@@ -231,7 +231,8 @@ async function loadEarAsset(asset) {
         scale: asset.scale ?? 1,
         offsetX: asset.offsetX ?? 0,
         offsetY: asset.offsetY ?? 0,
-        angleScale: asset.angleScale ?? 1
+        angleScale: asset.angleScale ?? 1,
+        angleOffset: asset.angleOffset ?? 0
       });
     };
     image.onerror = () => resolve(null);
@@ -345,7 +346,7 @@ faceMesh.onResults((results) => {
     if (currentEar) {
       ctx.save();
       ctx.translate(centerX, centerY);
-      ctx.rotate(angle * (currentEar.angleScale ?? 1));
+      ctx.rotate((angle * (currentEar.angleScale ?? 1)) + (currentEar.angleOffset ?? 0));
       ctx.drawImage(currentEar.canvas, -earWidth / 2, -earHeight / 2, earWidth, earHeight);
       ctx.restore();
     }
