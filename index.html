@@ -196,6 +196,7 @@ let animationFrameId = null;
 let isSending = false;
 let toastTimeoutId = null;
 let lastFaceBounds = null;
+let lastSwitchAt = 0;
 
 async function loadEarAsset(asset) {
   return new Promise((resolve) => {
@@ -413,19 +414,6 @@ function savePhoto() {
   showToast("しゃしんを ほぞんしたよ");
 }
 
-function getCanvasPoint(event) {
-  const rect = canvas.getBoundingClientRect();
-  const source = event.changedTouches ? event.changedTouches[0] : event;
-  const relX = (source.clientX - rect.left) / rect.width;
-  const relY = (source.clientY - rect.top) / rect.height;
-  const mirrored = currentFacingMode === "user";
-
-  return {
-    x: mirrored ? 1 - relX : relX,
-    y: relY
-  };
-}
-
 function chooseRandomEarIndex() {
   if (processedEars.length <= 1) {
     return currentEarIndex;
@@ -443,23 +431,18 @@ function handleFaceTap(event) {
     return;
   }
 
-  const point = getCanvasPoint(event);
-  const inFace =
-    point.x >= lastFaceBounds.left &&
-    point.x <= lastFaceBounds.right &&
-    point.y >= lastFaceBounds.top &&
-    point.y <= lastFaceBounds.bottom;
-
-  if (!inFace) {
+  const now = Date.now();
+  if (now - lastSwitchAt < 400) {
     return;
   }
 
+  lastSwitchAt = now;
   currentEarIndex = chooseRandomEarIndex();
   showToast("みみが かわったよ");
 }
 
 function isControlTarget(target) {
-  return target === startButton || target === switchButton || target === captureButton;
+  return Boolean(target.closest("#startButton, #switchButton, #captureButton, #status"));
 }
 
 loadEarAssets();
