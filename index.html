@@ -183,10 +183,10 @@ const switchButton = document.getElementById("switchButton");
 const captureButton = document.getElementById("captureButton");
 const toast = document.getElementById("toast");
 const earAssets = [
-  { src: "usamimi.png" },
-  { src: "usamimi_2.png" },
-  { src: "usamimi_3.png" },
-  { src: "usamimi_4.png" }
+  { src: "usamimi.png", scale: 1, offsetX: 0, offsetY: 0 },
+  { src: "usamimi_2.png", scale: 1.18, offsetX: 0, offsetY: 0.2 },
+  { src: "usamimi_3.png", scale: 1.08, offsetX: 0, offsetY: 0.08 },
+  { src: "usamimi_4.png", scale: 0.92, offsetX: 0, offsetY: -0.18 }
 ];
 const processedEars = [];
 let currentEarIndex = 0;
@@ -227,7 +227,10 @@ async function loadEarAsset(asset) {
         canvas: offscreenCanvas,
         width: image.naturalWidth,
         height: image.naturalHeight,
-        src: asset.src
+        src: asset.src,
+        scale: asset.scale ?? 1,
+        offsetX: asset.offsetX ?? 0,
+        offsetY: asset.offsetY ?? 0
       });
     };
     image.onerror = () => resolve(null);
@@ -331,11 +334,12 @@ faceMesh.onResults((results) => {
       bottom: Math.min(1, maxY + bottomPad)
     };
 
-    const earWidth = headWidth * 2.35;
+    const baseEarWidth = headWidth * 2.35;
     const currentEar = processedEars[currentEarIndex];
+    const earWidth = baseEarWidth * (currentEar?.scale ?? 1);
     const earHeight = earWidth * ((currentEar?.height / currentEar?.width) || 0.68);
-    const centerX = foreheadX;
-    const centerY = foreheadY - headHeight * 0.48;
+    const centerX = foreheadX + headWidth * (currentEar?.offsetX ?? 0);
+    const centerY = foreheadY - headHeight * (0.48 + (currentEar?.offsetY ?? 0));
 
     if (currentEar) {
       ctx.save();
