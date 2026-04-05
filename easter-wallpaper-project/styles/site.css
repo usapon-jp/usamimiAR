@@ -1,0 +1,347 @@
+:root {
+  --bg: #f6f1e6;
+  --panel: rgba(255, 250, 241, 0.88);
+  --line: rgba(105, 76, 45, 0.18);
+  --text: #432f1b;
+  --muted: #755f48;
+  --accent: #ea7f52;
+  --accent-strong: #d96635;
+  --shadow: 0 20px 45px rgba(112, 81, 44, 0.16);
+  --radius: 24px;
+  --font-ui: "Avenir Next", "Hiragino Sans", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-ui);
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(255, 216, 188, 0.7), transparent 30%),
+    radial-gradient(circle at right 10% bottom 15%, rgba(190, 228, 211, 0.65), transparent 26%),
+    linear-gradient(180deg, #fff9ef 0%, #f3ead9 100%);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+}
+
+.theme-app .app-shell,
+.theme-editor .editor-shell {
+  width: min(1180px, calc(100vw - 24px));
+  margin: 0 auto;
+  padding: 16px 0 28px;
+}
+
+.topbar,
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 18px 20px;
+  margin: 0 0 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+
+.topbar h1,
+.editor-header h1 {
+  margin: 6px 0 0;
+  font-size: clamp(1.5rem, 2vw, 2.3rem);
+  line-height: 1.15;
+}
+
+.eyebrow {
+  margin: 0;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.lead {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.topbar-actions,
+.header-actions,
+.scene-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.primary-button,
+.ghost-button,
+.tool-button {
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 999px;
+  transition: transform 140ms ease, background-color 140ms ease, opacity 140ms ease;
+  touch-action: manipulation;
+}
+
+.primary-button {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(217, 102, 53, 0.28);
+}
+
+.ghost-button,
+.tool-button {
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.scene-card,
+.editor-stage-card,
+.side-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+
+.scene-card,
+.editor-stage-card,
+.side-panel {
+  padding: 16px;
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.status-row p {
+  margin: 0;
+}
+
+.editor-link {
+  color: var(--accent-strong);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.scene-frame {
+  width: min(100%, 460px);
+  margin: 0 auto;
+  aspect-ratio: var(--scene-ratio, 9 / 16);
+  overflow: hidden;
+  border-radius: calc(var(--radius) - 8px);
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(118, 86, 37, 0.12));
+}
+
+.scene-object {
+  position: absolute;
+  transform-origin: center center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  transition: opacity 200ms ease, filter 200ms ease, transform 140ms ease;
+}
+
+.scene-object img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+.scene-object.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scene-object.is-found {
+  opacity: 0.42;
+  filter: saturate(0.85);
+}
+
+.scene-object.is-selected {
+  outline: 3px solid rgba(234, 127, 82, 0.9);
+  outline-offset: 4px;
+}
+
+.editor-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(240px, 300px);
+  gap: 16px;
+}
+
+.editor-stage-card .scene-frame {
+  width: min(100%, 560px);
+}
+
+.stack {
+  display: grid;
+  gap: 10px;
+}
+
+.object-list {
+  display: grid;
+  gap: 8px;
+  max-height: 48vh;
+  overflow: auto;
+}
+
+.object-chip {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  padding: 12px 14px;
+  text-align: left;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid transparent;
+}
+
+.object-chip strong {
+  font-size: 0.95rem;
+}
+
+.object-chip span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.object-chip.is-active {
+  border-color: rgba(234, 127, 82, 0.8);
+  background: rgba(255, 236, 226, 0.95);
+}
+
+.editor-frame,
+.editor-scene {
+  touch-action: none;
+}
+
+.editor-scene .scene-object.is-hidden {
+  opacity: 0.38;
+  pointer-events: auto;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field span {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.field input[type="text"],
+.field input[type="number"] {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.field-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.field-inline input {
+  width: 22px;
+  height: 22px;
+}
+
+.empty-state {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.hidden {
+  display: none;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: rgba(67, 47, 27, 0.9);
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  z-index: 30;
+}
+
+.toast.is-visible {
+  opacity: 1;
+}
+
+@media (max-width: 960px) {
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .topbar,
+  .editor-header,
+  .status-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .theme-app .app-shell,
+  .theme-editor .editor-shell {
+    width: min(100vw - 16px, 1180px);
+    padding-top: 8px;
+  }
+}

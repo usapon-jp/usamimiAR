@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "title": "イースターたまご探し",
+  "background": "assets/real/background.jpg",
+  "storageKey": "easter-egg-hunt-layout",
+  "sceneRatio": "2000 / 4700",
+  "objects": [
+    {
+      "id": "bunny-1",
+      "name": "flower-friends",
+      "type": "bunny",
+      "asset": "assets/real/group-1.png",
+      "x": 67,
+      "y": 33,
+      "scale": 37,
+      "rotation": 0,
+      "z": 4,
+      "hidden": true,
+      "linkedId": ""
+    },
+    {
+      "id": "bunny-2",
+      "name": "wreath-friends",
+      "type": "bunny",
+      "asset": "assets/real/group-2.png",
+      "x": 24,
+      "y": 63,
+      "scale": 33,
+      "rotation": 0,
+      "z": 4,
+      "hidden": true,
+      "linkedId": ""
+    },
+    {
+      "id": "bunny-3",
+      "name": "crown-bunny",
+      "type": "bunny",
+      "asset": "assets/real/group-3.png",
+      "x": 73,
+      "y": 66,
+      "scale": 34,
+      "rotation": 0,
+      "z": 4,
+      "hidden": true,
+      "linkedId": ""
+    },
+    {
+      "id": "bunny-4",
+      "name": "blue-egg-bunny",
+      "type": "bunny",
+      "asset": "assets/real/group-4.png",
+      "x": 46,
+      "y": 84,
+      "scale": 31,
+      "rotation": 0,
+      "z": 4,
+      "hidden": true,
+      "linkedId": ""
+    },
+    {
+      "id": "egg-1",
+      "name": "egg-top-right",
+      "type": "egg",
+      "asset": "assets/real/egg-1.png",
+      "x": 69,
+      "y": 30,
+      "scale": 12,
+      "rotation": -12,
+      "z": 8,
+      "hidden": false,
+      "linkedId": "bunny-1"
+    },
+    {
+      "id": "egg-2",
+      "name": "egg-mid-left",
+      "type": "egg",
+      "asset": "assets/real/egg-2.png",
+      "x": 26,
+      "y": 60,
+      "scale": 12,
+      "rotation": 9,
+      "z": 8,
+      "hidden": false,
+      "linkedId": "bunny-2"
+    },
+    {
+      "id": "egg-3",
+      "name": "egg-mid-right",
+      "type": "egg",
+      "asset": "assets/real/egg-3.png",
+      "x": 73,
+      "y": 62,
+      "scale": 12,
+      "rotation": -8,
+      "z": 8,
+      "hidden": false,
+      "linkedId": "bunny-3"
+    },
+    {
+      "id": "egg-4",
+      "name": "egg-bottom",
+      "type": "egg",
+      "asset": "assets/real/egg-4.png",
+      "x": 42,
+      "y": 84,
+      "scale": 12,
+      "rotation": 10,
+      "z": 8,
+      "hidden": false,
+      "linkedId": "bunny-4"
+    }
+  ]
+}

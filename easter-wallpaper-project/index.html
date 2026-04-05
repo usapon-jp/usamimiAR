@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>イースターたまご探し</title>
+  <link rel="stylesheet" href="styles/site.css">
+</head>
+<body class="theme-app">
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Easter Egg Hunt</p>
+        <h1>たまごをタップして うさぎを見つけよう</h1>
+      </div>
+      <div class="topbar-actions">
+        <button id="resetButton" class="ghost-button" type="button">やりなおし</button>
+        <button id="saveImageButton" class="primary-button" type="button">PNG保存</button>
+      </div>
+    </header>
+
+    <section class="scene-card">
+      <div class="scene-frame">
+        <div id="scene" class="scene" aria-label="たまご探しステージ"></div>
+      </div>
+      <div class="status-row">
+        <p id="progressText">読み込み中...</p>
+        <a class="editor-link" href="editor.html">配置エディタを開く</a>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="scripts/layout-config.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

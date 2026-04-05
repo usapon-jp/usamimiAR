@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>イースターたまご探し 配置エディタ</title>
+  <link rel="stylesheet" href="styles/site.css">
+</head>
+<body class="theme-editor">
+  <main class="editor-shell">
+    <header class="editor-header">
+      <div>
+        <p class="eyebrow">Layout Editor</p>
+        <h1>iPad配置エディタ</h1>
+        <p class="lead">ドラッグで移動、2本指で拡大縮小と回転。保存したJSONを本番でそのまま使えます。</p>
+      </div>
+      <div class="header-actions">
+        <button id="loadCurrentButton" class="ghost-button" type="button">現在のJSON</button>
+        <button id="loadFileButton" class="ghost-button" type="button">読み込み</button>
+        <button id="saveButton" class="primary-button" type="button">保存</button>
+      </div>
+      <input id="fileInput" type="file" accept="application/json,.json" hidden>
+    </header>
+
+    <section class="editor-grid">
+      <aside class="side-panel toolbox">
+        <h2>追加</h2>
+        <div class="stack">
+          <button data-add-type="egg" class="tool-button" type="button">たまごを追加</button>
+          <button data-add-type="bunny" class="tool-button" type="button">うさぎを追加</button>
+          <button data-add-type="decoration" class="tool-button" type="button">装飾を追加</button>
+        </div>
+
+        <h2>一覧</h2>
+        <div id="objectList" class="object-list" role="listbox" aria-label="オブジェクト一覧"></div>
+      </aside>
+
+      <section class="editor-stage-card">
+        <div class="scene-toolbar">
+          <button id="duplicateButton" class="ghost-button" type="button">複製</button>
+          <button id="deleteButton" class="ghost-button" type="button">削除</button>
+          <button id="rotateLeftButton" class="ghost-button" type="button">-15°</button>
+          <button id="rotateRightButton" class="ghost-button" type="button">+15°</button>
+        </div>
+        <div class="scene-frame editor-frame">
+          <div id="editorScene" class="scene editor-scene" aria-label="編集キャンバス"></div>
+        </div>
+      </section>
+
+      <aside class="side-panel inspector">
+        <h2>プロパティ</h2>
+        <div id="emptyState" class="empty-state">オブジェクトを選ぶと調整できます。</div>
+        <div id="inspectorFields" class="stack hidden">
+          <label class="field">
+            <span>名前</span>
+            <input id="nameInput" type="text">
+          </label>
+          <label class="field">
+            <span>画像パス</span>
+            <input id="assetInput" type="text">
+          </label>
+          <label class="field">
+            <span>連動うさぎID</span>
+            <input id="linkedIdInput" type="text" placeholder="egg のときだけ使用">
+          </label>
+          <label class="field">
+            <span>X (%)</span>
+            <input id="xInput" type="number" min="0" max="100" step="0.1">
+          </label>
+          <label class="field">
+            <span>Y (%)</span>
+            <input id="yInput" type="number" min="0" max="100" step="0.1">
+          </label>
+          <label class="field">
+            <span>Scale (%)</span>
+            <input id="scaleInput" type="number" min="1" max="60" step="0.1">
+          </label>
+          <label class="field">
+            <span>Rotation (deg)</span>
+            <input id="rotationInput" type="number" min="-180" max="180" step="1">
+          </label>
+          <label class="field">
+            <span>Z-index</span>
+            <input id="zInput" type="number" min="0" max="50" step="1">
+          </label>
+          <label class="field field-inline">
+            <input id="hiddenInput" type="checkbox">
+            <span>初期状態で非表示</span>
+          </label>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="scripts/layout-config.js"></script>
+  <script src="scripts/editor.js"></script>
+</body>
+</html>
