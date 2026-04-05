@@ -58,6 +58,19 @@
       "linkedId": ""
     },
     {
+      "id": "bunny-5",
+      "name": "butterfly-friends",
+      "type": "bunny",
+      "asset": "assets/real/group-5.png",
+      "x": 28,
+      "y": 36,
+      "scale": 35,
+      "rotation": 0,
+      "z": 4,
+      "hidden": true,
+      "linkedId": ""
+    },
+    {
       "id": "egg-1",
       "name": "egg-top-right",
       "type": "egg",
@@ -108,6 +121,19 @@
       "z": 8,
       "hidden": false,
       "linkedId": "bunny-4"
+    },
+    {
+      "id": "egg-5",
+      "name": "egg-top-left",
+      "type": "egg",
+      "asset": "assets/real/egg-5.png",
+      "x": 27,
+      "y": 34,
+      "scale": 12,
+      "rotation": -6,
+      "z": 8,
+      "hidden": false,
+      "linkedId": "bunny-5"
     }
   ]
 }
