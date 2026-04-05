@@ -117,7 +117,7 @@
     target.classList.add("is-hidden");
     revealLinkedBunny(egg);
     updateProgress();
-    showToast(`${egg.name} から うさぎがでてきた`);
+    showToast("うさぎさん発見！");
   });
 
   async function loadImage(src) {
