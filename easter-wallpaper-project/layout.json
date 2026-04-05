@@ -134,6 +134,19 @@
       "z": 8,
       "hidden": false,
       "linkedId": "bunny-5"
+    },
+    {
+      "id": "egg-6",
+      "name": "egg-center",
+      "type": "egg",
+      "asset": "assets/real/egg-6.svg",
+      "x": 52,
+      "y": 48,
+      "scale": 12,
+      "rotation": 4,
+      "z": 8,
+      "hidden": false,
+      "linkedId": "bunny-5"
     }
   ]
 }
