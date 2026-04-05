@@ -3,6 +3,7 @@
   "title": "イースターたまご探し",
   "background": "assets/real/background.jpg",
   "storageKey": "easter-egg-hunt-layout",
+  "sceneRatio": "9 / 16",
   "objects": [
     {
       "id": "bunny-1",
@@ -37,7 +38,7 @@
       "asset": "assets/real/group-3.png",
       "x": 73.1953125,
       "y": 67.89134195981053,
-      "scale": 34,
+      "scale": 30.3,
       "rotation": 0,
       "z": 4,
       "hidden": true,
@@ -50,7 +51,7 @@
       "asset": "assets/real/group-4.png",
       "x": 74.6808329417293,
       "y": 89.8132308993248,
-      "scale": 34.9,
+      "scale": 36.5,
       "rotation": 0,
       "z": 4,
       "hidden": true,
@@ -134,6 +135,5 @@
       "hidden": false,
       "linkedId": "bunny-3"
     }
-  ],
-  "sceneRatio": "9 / 16"
+  ]
 }

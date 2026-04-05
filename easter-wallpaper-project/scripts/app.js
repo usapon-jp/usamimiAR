@@ -5,6 +5,8 @@
   const saveImageButton = document.getElementById("saveImageButton");
   const resetButton = document.getElementById("resetButton");
   const toast = document.getElementById("toast");
+  const storage = window.localStorage;
+  const resetOnLoad = document.body.dataset.resetOnLoad === "true";
 
   const { loadLayout, sortObjects, objectToStyle } = window.EasterLayout;
 
@@ -25,14 +27,14 @@
 
   function readFoundState() {
     try {
-      return JSON.parse(localStorage.getItem(getStorageKey()) || "{}");
+      return JSON.parse(storage.getItem(getStorageKey()) || "{}");
     } catch (error) {
       return {};
     }
   }
 
   function saveFoundState() {
-    localStorage.setItem(getStorageKey(), JSON.stringify(foundEggs));
+    storage.setItem(getStorageKey(), JSON.stringify(foundEggs));
   }
 
   function getObjectById(id) {
@@ -169,7 +171,7 @@
 
   resetButton.addEventListener("click", () => {
     foundEggs = {};
-    localStorage.removeItem(getStorageKey());
+    storage.removeItem(getStorageKey());
     renderScene();
     showToast("開封状態をリセットしました");
   });
@@ -177,6 +179,9 @@
   async function init() {
     try {
       layout = await loadLayout();
+      if (resetOnLoad) {
+        storage.removeItem(getStorageKey());
+      }
       foundEggs = readFoundState();
       renderScene();
     } catch (error) {
