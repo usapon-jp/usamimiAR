@@ -40,6 +40,9 @@
   }
 
   function isObjectVisible(item) {
+    if (item.type === "egg" && foundEggs[item.id]) {
+      return false;
+    }
     if (!item.hidden) {
       return true;
     }
@@ -66,10 +69,6 @@
 
     if (!isObjectVisible(item)) {
       element.classList.add("is-hidden");
-    }
-
-    if (item.type === "egg" && foundEggs[item.id]) {
-      element.classList.add("is-found");
     }
 
     return element;
@@ -113,7 +112,7 @@
 
     foundEggs[egg.id] = true;
     saveFoundState();
-    target.classList.add("is-found");
+    target.classList.add("is-hidden");
     revealLinkedBunny(egg);
     updateProgress();
     showToast(`${egg.name} から うさぎがでてきた`);
@@ -149,9 +148,6 @@
       ctx.save();
       ctx.translate(centerX, centerY);
       ctx.rotate((item.rotation * Math.PI) / 180);
-      if (item.type === "egg" && foundEggs[item.id]) {
-        ctx.globalAlpha = 0.42;
-      }
       ctx.drawImage(image, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
       ctx.restore();
     }
